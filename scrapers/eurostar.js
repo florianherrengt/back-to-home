@@ -18,7 +18,7 @@ var eurostarJourneys = {
     }
 }
 
-var home = require('./objects/home.js');
+var page = require('./objects/eurostar.js');
 var webdriverio = require('webdriverio'),
     client = webdriverio.remote({
         desiredCapabilities: {
@@ -30,24 +30,24 @@ var webdriverio = require('webdriverio'),
 client
     .url('http://www.eurostar.com/uk-en')
     //set destination
-    .click(home.input.to)
-    .waitFor(home.modal.lille)
-    .waitForVisible(home.modal.lille)
-    .click(home.modal.lille)
+    .click(page.input.to)
+    .waitFor(page.modal.lille)
+    .waitForVisible(page.modal.lille)
+    .click(page.modal.lille)
     .pause(5000)
     // set from time
-    .waitFor(home.input.departTime)
-    .waitForVisible(home.input.departTime)
-    .setValue(home.input.departTime, '')
-    .click(home.input.departTime)
+    .waitFor(page.input.departTime)
+    .waitForVisible(page.input.departTime)
+    .setValue(page.input.departTime, '')
+    .click(page.input.departTime)
     .keys(outboundDate)
     .keys('Enter')
     .pause(1000)
     // set return time
-    .waitFor(home.input.returnTime)
-    .waitForVisible(home.input.returnTime)
-    .setValue(home.input.returnTime, inboundDate)
-    .click(home.input.submit)
+    .waitFor(page.input.returnTime)
+    .waitForVisible(page.input.returnTime)
+    .setValue(page.input.returnTime, inboundDate)
+    .click(page.input.submit)
     .pause(10000)
     .source(function(err, res) {
         $ = cheerio.load(res.value);
@@ -59,11 +59,11 @@ client
             });
         });
     })
-    .waitFor(home.firstPrice)
-    .waitForVisible(home.firstPrice)
-    .click(home.firstPrice)
+    .waitFor(page.firstPrice)
+    .waitForVisible(page.firstPrice)
+    .click(page.firstPrice)
     .pause(5000)
-    .click(home.input.goNext)
+    .click(page.input.goNext)
     .pause(5000)
     .source(function(err, res) {
         $ = cheerio.load(res.value);
