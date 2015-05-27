@@ -1,0 +1,130 @@
+//ToDo: DRY code
+
+var async = require('async');
+var cheerio = require('cheerio');
+var moment = require('moment');
+var currentDate = moment();
+if (currentDate.day() > 4) {
+    currentDate.add(7, 'day');
+}
+var outboundDate = currentDate.day('Friday').format("DD/MM/YYYY");
+var inboundDate = currentDate.add(2, 'day').format("DD/MM/YYYY")
+
+var blablacarJourneys = {
+    outbound: {
+        date: outboundDate,
+        journeys: []
+    },
+    inbound: {
+        date: inboundDate,
+        journeys: []
+    }
+}
+
+var page = require('./objects/blablacar.js');
+var webdriverio = require('webdriverio');
+var clientOutbound = webdriverio.remote({
+    desiredCapabilities: {
+        // browserName: 'chrome'
+        browserName: 'phantomjs'
+    }
+}).init();
+
+// async.parallel([
+//         function(callback) {
+//             var client = webdriverio.remote({
+//                 desiredCapabilities: {
+//                     // browserName: 'chrome'
+//                     browserName: 'phantomjs'
+//                 }
+//             }).init();
+
+//             client
+//                 .url('https://www.blablacar.co.uk/')
+//                 .setValue(page.input.from, 'London')
+//                 .setValue(page.input.to, 'Lille')
+//                 .click(page.input.submit)
+//                 .setValue(page.input.departDate, outboundDate)
+//                 .keys('Enter')
+//                 .pause(5000)
+//                 .source(function(err, res) {
+//                     var $ = cheerio.load(res.value);
+//                     var schedules = $('ul.trip-search-results li');
+//                     $(schedules).each(function() {
+//                         blablacarJourneys.outbound.journeys.push({
+//                             departTime: $(this).find('h3.time').text().match(/[\d]{2}:[\d]{2}/)[0],
+//                             from: $(this).find('dl.geo-from > dd').text().trim(),
+//                             to: $(this).find('dl.geo-to > dd').text().trim(),
+//                             price: $(this).find('div.offer.span2 > div.price.price-red > strong > span').text().replace(/[^0-9]/g, '')
+//                         });
+//                     });
+//                     callback(null);
+//                 })
+//                 .end();
+//         },
+//         function(callback) {
+//             var client = webdriverio.remote({
+//                 desiredCapabilities: {
+//                     // browserName: 'chrome'
+//                     browserName: 'phantomjs'
+//                 }
+//             }).init();
+
+//             client
+//                 .url('https://www.blablacar.co.uk/')
+//                 .setValue(page.input.from, 'Lille')
+//                 .setValue(page.input.to, 'London')
+//                 .click(page.input.submit)
+//                 .setValue(page.input.departDate, outboundDate)
+//                 .keys('Enter')
+//                 .pause(5000)
+//                 .source(function(err, res) {
+//                     var $ = cheerio.load(res.value);
+//                     var schedules = $('ul.trip-search-results li');
+//                     $(schedules).each(function() {
+//                         blablacarJourneys.inbound.journeys.push({
+//                             departTime: $(this).find('h3.time').text().match(/[\d]{2}:[\d]{2}/)[0],
+//                             from: $(this).find('dl.geo-from > dd').text().trim(),
+//                             to: $(this).find('dl.geo-to > dd').text().trim(),
+//                             price: $(this).find('div.offer.span2 > div.price.price-red > strong > span').text().replace(/[^0-9]/g, '')
+//                         });
+//                     });
+//                     callback(null);
+//                 })
+//                 .end();
+//         }
+//     ],
+//     function(err, results) {
+//         console.log(JSON.stringify(blablacarJourneys))
+//     });
+
+var client = webdriverio.remote({
+    desiredCapabilities: {
+        // browserName: 'chrome'
+        browserName: 'phantomjs'
+    }
+}).init();
+
+client
+    .url('https://www.blablacar.co.uk/ride-sharing/lille/london/#?db=17/04/2015&fn=Lille&tn=London&tcc=GB&sort=trip_date&order=asc&limit=1000')
+    // .setValue(page.input.from, 'Lille')
+    // .setValue(page.input.to, 'London')
+    // .click(page.input.submit)
+    // .setValue(page.input.departDate, outboundDate)
+    // .keys('Enter')
+    // .pause(5000)
+    .source(function(err, res) {
+        var $ = cheerio.load(res.value);
+        var schedules = $('ul.trip-search-results li');
+        $(schedules).each(function() {
+            blablacarJourneys.inbound.journeys.push({
+                departTime: $(this).find('h3.time').text().match(/[\d]{2}:[\d]{2}/)[0],
+                from: $(this).find('dl.geo-from > dd').text().trim(),
+                to: $(this).find('dl.geo-to > dd').text().trim(),
+                price: $(this).find('div.offer.span2 > div.price.price-red > strong > span').text().replace(/[^0-9]/g, '')
+            });
+        });
+                console.log(JSON.stringify(blablacarJourneys))
+        // callback(null);
+    })
+    .end();

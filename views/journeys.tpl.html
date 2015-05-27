@@ -1,0 +1,14 @@
+<table>
+  <tr>
+    <td>Depart</td>
+    <td>Arrive</td>
+    <td>Price</td>
+  </tr>
+  <% _.each(journeys, function(journey) { %>
+    <tr>
+      <td><%- journey.depart %></td>
+      <td><%- journey.arrive %></td>
+      <td><%- journey.price %></td>
+    </tr>
+  <% }); %>
+</table>
